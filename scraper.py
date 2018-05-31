@@ -85,8 +85,8 @@ def convert_mth_strings ( mth_string ):
 
 #### VARIABLES 1.0
 
-entity_id = "E0931_ABC_gov"
-url = "https://www.allerdale.gov.uk/en/about-council/budget-and-spending/spending-council/"
+entity_id = "E3431_CCDC_gov"
+url = "https://www.cannockchasedc.gov.uk/council/about-council/transparency-open-data/invoices-over-£500-open-data"
 errors = 0
 data = []
 
@@ -94,17 +94,21 @@ data = []
 #### READ HTML 1.0
 
 html = urllib2.urlopen(url)
-soup = BeautifulSoup(html, "lxml")
+soup = BeautifulSoup(html, 'lxml')
 
 #### SCRAPE DATA
 
-links = soup.find_all('a')
+links = soup.find('div', attrs = {'id': 'accordion1'}).find_all('a')
 for link in links:
-    file_name = link.text
-    if 'Spending' in file_name and '.csv' in link['href']:
-        url = link['href']
-        csvYr = file_name.replace('Spending ', '').strip()[-4:]
-        csvMth = file_name.replace('Spending ', '').strip()[:3]
+    url = link['href']
+    if '.csv' in url or '.xlsx' in url or '.xlx' in url:
+        if 'http' not in url:
+            url = 'https://www.cannockchasedc.gov.uk' + url
+        else:
+            url = url
+        file_name = link.text
+        csvYr = file_name.split()[-1]
+        csvMth = file_name[:3]
         csvMth = convert_mth_strings(csvMth.upper())
         data.append([csvYr, csvMth, url])
 
